@@ -12,10 +12,17 @@ ROOT = Path(__file__).parent
 FEED = "https://thwacklife.com/blogs/arrows-and-insights.atom"
 VOICE = "bIHbv24MWmeRgasZH58o"  # "Will", approved by Tim 2026-11-04
 STATE = ROOT / "made.json"
+PHOTOS = ROOT / "photos"   # photos/<person-slug>/*.jpg|png, uploaded by Tim
+# Words the voice says wrong, and how to spell them so it says them right. Captions still show the real word.
+SAY_AS = {r"\bPara\b": "Pair-uh", r"\bpara\b": "pair-uh"}
+# Livelier delivery than the voice's default (Tim, 2026-11-05: start sounded flat and slow).
+VOICE_SETTINGS = {"stability": 0.32, "similarity_boost": 0.8, "style": 0.5, "use_speaker_boost": True, "speed": 1.08}
 COLORS = ["#FB5504", "#2EC4B6", "#F4C542", "#7BD389", "#FF6FA3", "#9B8CFF", "#58A6FF"]
 
 RULES = """You write 30 to 45 second vertical videos for Thwack Life Archery Addiction, a culture-first community for U.S. target archers: recreational, competitive and adaptive.
-Voice: a shooter talking to another shooter. Direct, warm, unpretentious, knowledgeable. No hype, no corporate filler, no exclamation stacking.
+Voice: a shooter talking to another shooter. Direct, warm, unpretentious, knowledgeable. No corporate filler, no exclamation stacking.
+Energy: when the article is a result, a match or a comeback, tell it like you just watched it happen and can't wait to tell a friend. Short punchy sentences, momentum, real enthusiasm.
+Hook (REQUIRED in every video): the first scene is the hook. Its "type" is "hook". In one or two short sentences it grabs attention AND says plainly what the video is about: name the person, event or topic in the first sentence. Its "head" is 6 words or fewer and names the subject. Never open with a stat or fragment that leaves the viewer guessing what this is.
 Hard rules:
 - Use ONLY facts stated in the source article. Never add a number, name, date or claim that is not in it.
 - Each video makes one specific, useful point from the article, and has its own hook. Never a generic overview.
@@ -28,7 +35,9 @@ Return ONLY JSON:
  "scenes": [{"say": "the exact words spoken in this scene", "type": "line|stack|card",
    "eyebrow": "2 to 5 words, optional", "head": "on-screen text, 8 words or fewer", "sub": "card subtext, 7 words or fewer",
    "items": ["for stack only: 2 or 3 items, 3 words or fewer each"]}]}
-Use 5 to 8 scenes and at least two scene types. Finish with a scene whose say is exactly: Thwack life dot com."""
+The first scene's type is "hook"; the others are "line", "stack" or "card".
+If the user message lists photo folders and the article is mainly about one of those people, add "person": "<that folder name>" at the top level of the JSON. Otherwise leave "person" out.
+Use 5 to 8 scenes and at least two scene types besides the hook. Finish with a scene whose say is exactly: Thwack life dot com."""
 
 
 def http(url, data=None, headers=None):
@@ -49,9 +58,42 @@ def articles():
     return out
 
 
+def photo_folders():
+    return sorted(d.name for d in PHOTOS.iterdir() if d.is_dir() and photos_for(d.name)) if PHOTOS.exists() else []
+
+
+def photos_for(person):
+    d = PHOTOS / person
+    return sorted(p for p in d.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")) if d.is_dir() else []
+
+
+def hook_problem(draft):
+    sc = draft.get("scenes") or []
+    if not sc or sc[0].get("type") != "hook" or not sc[0].get("head") or not sc[0].get("say"):
+        return "the first scene must be a hook scene with a head and a say"
+    if len(sc[0]["say"].split()) > 30:
+        return "the hook is too long"
+    return None
+
+
 def write_script(article):
-    body = json.dumps({"model": "claude-sonnet-5-5", "max_tokens": 2000, "system": RULES,
-                       "messages": [{"role": "user", "content": f"Source article: {article['title']}\n\n{article['text'][:12000]}"}]}).encode()
+    folders = photo_folders()
+    ask = f"Source article: {article['title']}\n\n{article['text'][:12000]}"
+    if folders:
+        ask += "\n\nPhoto folders: " + ", ".join(folders)
+    msgs = [{"role": "user", "content": ask}]
+    for attempt in range(2):
+        draft = ask_claude(msgs)
+        problem = hook_problem(draft)
+        if not problem:
+            return draft
+        msgs += [{"role": "assistant", "content": json.dumps(draft)},
+                 {"role": "user", "content": f"Rewrite it: {problem}. Every video must open with a hook. Return ONLY JSON."}]
+    raise ValueError(f"script has no proper hook: {problem}")
+
+
+def ask_claude(msgs):
+    body = json.dumps({"model": "claude-sonnet-5-5", "max_tokens": 2000, "system": RULES, "messages": msgs}).encode()
     raw = http("https://api.anthropic.com/v1/messages", body, {"x-api-key": os.environ["ANTHROPIC_API_KEY"],
                "anthropic-version": "2023-06-01", "content-type": "application/json"})
     reply = json.loads(raw)
@@ -80,14 +122,25 @@ def words_from_alignment(al):
     return words
 
 
+def spoken(script):
+    for pat, say in SAY_AS.items():
+        script = re.sub(pat, say, script)
+    return script
+
+
 def voice(script, mp3):
-    body = json.dumps({"text": script, "model_id": "eleven_multilingual_v2"}).encode()
+    body = json.dumps({"text": spoken(script), "model_id": "eleven_multilingual_v2", "voice_settings": VOICE_SETTINGS}).encode()
     raw = http(f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}/with-timestamps", body,
                {"xi-api-key": os.environ["ELEVENLABS_API_KEY"], "content-type": "application/json"})
     d = json.loads(raw)
     import base64
     mp3.write_bytes(base64.b64decode(d["audio_base64"]))
-    return words_from_alignment(d["alignment"])
+    words = words_from_alignment(d["alignment"])
+    shown = script.split()
+    if len(shown) == len(words):  # captions show the real spelling, not the say-as spelling
+        for w, t in zip(words, shown):
+            w["text"] = t
+    return words
 
 
 def transcribe(mp3):
@@ -109,7 +162,7 @@ def similarity(a, b):
     return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
 
 
-def build_spec(vid, draft, words):
+def build_spec(vid, draft, words, photos=None):
     """Pin each scene to the moment its words are spoken."""
     scenes, i = [], 0
     colors = iter(COLORS * 3)
@@ -121,7 +174,9 @@ def build_spec(vid, draft, words):
         start = 0 if n == 0 else chunk[0]["start"] - 0.12
         i += count
         scene = {"type": s.get("type", "line"), "start": round(start, 3), "eyebrow": s.get("eyebrow", "")}
-        if n == len(draft["scenes"]) - 1:
+        if scene["type"] == "hook":
+            scene.update(head=s.get("head", ""), size=150)
+        elif n == len(draft["scenes"]) - 1:
             scene.update(type="end", line="No gatekeeping. No gear elitism.<br>Just real archery.", url="THWACKLIFE.COM")
         elif scene["type"] == "stack" and s.get("items"):
             step = (chunk[-1]["end"] - chunk[0]["start"]) / len(s["items"])
@@ -133,6 +188,14 @@ def build_spec(vid, draft, words):
         scenes.append(scene)
     if i != len(words):
         raise ValueError("script and voice have different word counts")
+    # Real people on screen: the hook and every other content scene get a photo of the person.
+    pics = list(photos or [])
+    if pics:
+        k = 0
+        for n, scene in enumerate(scenes[:-1]):
+            if scene["type"] == "hook" or n % 2 == 0:
+                scene["photo"] = pics[k % len(pics)]
+                k += 1
     duration = round(words[-1]["end"] + 1.4, 2)
     for a, b in zip(scenes, scenes[1:]):
         a["end"] = b["start"]
@@ -142,6 +205,19 @@ def build_spec(vid, draft, words):
             "scenes": scenes, "words": words}
 
 
+def prep_photos(person, out, vid):
+    """Copy the person's photos, sized for a 1080x1920 frame, next to the spec."""
+    if not person or person not in photo_folders():
+        return []
+    done = []
+    for n, src in enumerate(photos_for(person)[:8]):
+        dst = out / f"{vid}-photo{n}.jpg"
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-vf",
+                        "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920", "-q:v", "3", str(dst)], check=True)
+        done.append(f"batch/{dst.name}")
+    return done
+
+
 def make_one(article, out):
     vid = re.sub(r"[^a-z0-9]+", "-", article["title"].lower()).strip("-")[:50]
     draft = write_script(article)
@@ -149,10 +225,10 @@ def make_one(article, out):
     mp3 = out / f"{vid}.mp3"
     words = voice(script, mp3)
     said = transcribe(mp3)
-    heard = similarity(said, script)
+    heard = max(similarity(said, script), similarity(said, spoken(script)))
     if heard < 0.88:
         raise ValueError(f"voice does not match script ({heard:.2f}); heard: {said}")
-    spec = build_spec(vid, draft, words)
+    spec = build_spec(vid, draft, words, prep_photos(draft.get("person"), out, vid))
     spec["source"] = article["link"]
     spec_path = out / f"{vid}.json"
     spec_path.write_text(json.dumps(spec, indent=1))
@@ -172,9 +248,12 @@ def main():
               "character_end_times_seconds": [.1, .2, .3, .4, .5, .6, .7, .8, .9]}
         w = words_from_alignment(al)
         assert [x["text"] for x in w] == ["Hi", "there."] and w[1]["start"] == .3 and w[1]["end"] == .9
-        draft = {"title": "t", "caption": "c", "scenes": [{"say": "Hi", "type": "line", "head": "HI"}, {"say": "there.", "head": "end"}]}
-        s = build_spec("x", draft, w)
+        draft = {"title": "t", "caption": "c", "scenes": [{"say": "Hi", "type": "hook", "head": "HI"}, {"say": "there.", "head": "end"}]}
+        assert hook_problem(draft) is None and hook_problem({"scenes": [{"type": "line", "say": "x", "head": "x"}]})
+        s = build_spec("x", draft, w, ["batch/p0.jpg"])
         assert s["scenes"][0]["end"] == s["scenes"][1]["start"] and s["scenes"][-1]["type"] == "end"
+        assert s["scenes"][0]["type"] == "hook" and s["scenes"][0]["photo"] == "batch/p0.jpg" and "photo" not in s["scenes"][-1]
+        assert spoken("Para Pan Ams and para archery") == "Pair-uh Pan Ams and pair-uh archery" and spoken("Paragraph") == "Paragraph"
         assert similarity("Thwack life, dot com.", "thwack life dot com") == 1
         print("offline tests passed")
         return

@@ -36,6 +36,7 @@ let html = fs.readFileSync(path.join(root, 'template.html'), 'utf8')
   .replace('FONT_M6', b64(path.join(nm, 'montserrat/files/montserrat-latin-600-normal.woff2'), 'font/woff2'))
   .replace('FONT_M8', b64(path.join(nm, 'montserrat/files/montserrat-latin-800-normal.woff2'), 'font/woff2'));
 const logo = b64(path.join(root, spec.logo), 'image/png');
+for (const sc of spec.scenes) if (sc.photo) sc.photo = b64(path.join(root, sc.photo), 'image/jpeg');
 html = html.split('LOGO').join(logo).replace('SPEC', JSON.stringify(spec).split('LOGO').join(logo));
 
 (async () => {
