@@ -1,0 +1,5 @@
+node_modules/
+batch/
+work/
+preview/
+*.tmp.mp4

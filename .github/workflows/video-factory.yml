@@ -1,0 +1,55 @@
+name: Video factory
+on:
+  schedule:
+    - cron: "17 11 * * 0"   # Sundays, about 6:17 AM Eastern
+  workflow_dispatch:
+    inputs:
+      count:
+        description: How many videos to make
+        default: "3"
+permissions:
+  contents: write
+concurrency: video-factory
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: factory
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Offline tests
+        run: python3 make.py --test
+      - name: Make the batch
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 make.py --count "${{ github.event.inputs.count || '3' }}"
+      - name: Publish the batch for review
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          files=(batch/*.mp4)
+          if [ ${#files[@]} -gt 0 ]; then
+            tag="batch-$(date +%Y-%m-%d-%H%M)"
+            python3 - <<'PY' > batch/notes.md
+          import glob, json
+          for f in sorted(glob.glob("batch/*.json")):
+              s = json.load(open(f))
+              print(f"## {s['title']}\n\n{s['caption']}\n\nSource: {s.get('source','')}\n")
+          PY
+            gh release create "$tag" "${files[@]}" batch/*.json --title "$tag" --notes-file batch/notes.md --prerelease
+          fi
+          git config user.name "tlaa-factory"
+          git config user.email "connect@thwacklife.com"
+          git add made.json && git commit -m "Record videos made" && git push || true

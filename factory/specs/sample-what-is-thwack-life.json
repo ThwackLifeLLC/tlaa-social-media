@@ -1,0 +1,481 @@
+{
+ "id": "what-is-thwack-life",
+ "logo": "assets/TLAA-Favicon.png",
+ "audio": "work/voice.mp3",
+ "duration": 30.0,
+ "script": "New to Thwack Life? Here's the short version. It's a free home for every U.S. target archer. Recreational, competitive, adaptive. No gatekeeping. No gear elitism. Just real archery. Find a place to shoot in our national directory. Find your next event on the calendar. Learn from our video library. And join a community that's free to join, and stays free. First arrow or ten-thousandth, there's a seat for you. Thwack life dot com.",
+ "scenes": [
+  {
+   "type": "title",
+   "start": 0,
+   "end": 2.75,
+   "head": "New to <span class='a'>Thwack Life?</span>"
+  },
+  {
+   "type": "line",
+   "start": 2.75,
+   "end": 5.75,
+   "eyebrow": "The short version",
+   "head": "A free home for <span class='a'>every</span> U.S. target archer"
+  },
+  {
+   "type": "stack",
+   "start": 5.75,
+   "end": 8.65,
+   "items": [
+    {
+     "t": "Recreational",
+     "at": 5.92
+    },
+    {
+     "t": "Competitive",
+     "at": 6.88
+    },
+    {
+     "t": "Adaptive",
+     "at": 8.0
+    }
+   ]
+  },
+  {
+   "type": "stack",
+   "start": 8.65,
+   "end": 12.9,
+   "size": 104,
+   "items": [
+    {
+     "t": "No gatekeeping.",
+     "at": 8.8
+    },
+    {
+     "t": "No gear elitism.",
+     "at": 9.92
+    },
+    {
+     "t": "Just real archery.",
+     "at": 11.28,
+     "a": true
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "start": 12.9,
+   "end": 15.6,
+   "color": "#FB5504",
+   "eyebrow": "Find a place to shoot",
+   "head": "The Directory",
+   "sub": "3,800+ listings nationwide"
+  },
+  {
+   "type": "card",
+   "start": 15.6,
+   "end": 17.6,
+   "color": "#F4C542",
+   "eyebrow": "Find your next shoot",
+   "head": "Events Calendar",
+   "size": 124,
+   "sub": "Every shoot in one place"
+  },
+  {
+   "type": "card",
+   "start": 17.6,
+   "end": 19.5,
+   "color": "#7BD389",
+   "eyebrow": "Keep getting better",
+   "head": "Learn",
+   "sub": "Video library for every style"
+  },
+  {
+   "type": "card",
+   "start": 19.5,
+   "end": 23.25,
+   "color": "#2EC4B6",
+   "eyebrow": "Find your people",
+   "head": "The Community",
+   "sub": "Free to join. Stays free."
+  },
+  {
+   "type": "line",
+   "start": 23.25,
+   "end": 26.9,
+   "head": "First arrow or<br>ten-thousandth,<br>there's a<br><span class='a'>seat for you</span>",
+   "size": 120,
+   "nowrap": true
+  },
+  {
+   "type": "end",
+   "start": 26.9,
+   "end": 30.1,
+   "line": "No gatekeeping. No gear elitism.<br>Just real archery.",
+   "url": "THWACKLIFE.COM"
+  }
+ ],
+ "words": [
+  {
+   "text": "New",
+   "start": 0,
+   "end": 0.24
+  },
+  {
+   "text": "to",
+   "start": 0.28,
+   "end": 0.32
+  },
+  {
+   "text": "Thwack",
+   "start": 0.4,
+   "end": 0.64
+  },
+  {
+   "text": "Life?",
+   "start": 0.72,
+   "end": 1.2
+  },
+  {
+   "text": "Here's",
+   "start": 1.36,
+   "end": 1.6
+  },
+  {
+   "text": "the",
+   "start": 1.64,
+   "end": 1.68
+  },
+  {
+   "text": "short",
+   "start": 1.76,
+   "end": 1.92
+  },
+  {
+   "text": "version.",
+   "start": 2,
+   "end": 2.6
+  },
+  {
+   "text": "It's",
+   "start": 2.8,
+   "end": 2.933
+  },
+  {
+   "text": "a",
+   "start": 2.987,
+   "end": 3.04
+  },
+  {
+   "text": "free",
+   "start": 3.16,
+   "end": 3.28
+  },
+  {
+   "text": "home",
+   "start": 3.36,
+   "end": 3.6
+  },
+  {
+   "text": "for",
+   "start": 3.68,
+   "end": 3.76
+  },
+  {
+   "text": "every",
+   "start": 4,
+   "end": 4.24
+  },
+  {
+   "text": "U.S.",
+   "start": 4.4,
+   "end": 4.64
+  },
+  {
+   "text": "target",
+   "start": 4.8,
+   "end": 5.04
+  },
+  {
+   "text": "archer.",
+   "start": 5.12,
+   "end": 5.52
+  },
+  {
+   "text": "Recreational,",
+   "start": 5.92,
+   "end": 6.8
+  },
+  {
+   "text": "competitive,",
+   "start": 6.88,
+   "end": 7.68
+  },
+  {
+   "text": "adaptive.",
+   "start": 8,
+   "end": 8.4
+  },
+  {
+   "text": "No",
+   "start": 8.8,
+   "end": 8.96
+  },
+  {
+   "text": "gatekeeping.",
+   "start": 9.04,
+   "end": 9.8
+  },
+  {
+   "text": "No",
+   "start": 9.92,
+   "end": 10.08
+  },
+  {
+   "text": "gear",
+   "start": 10.16,
+   "end": 10.32
+  },
+  {
+   "text": "elitism.",
+   "start": 10.4,
+   "end": 11.12
+  },
+  {
+   "text": "Just",
+   "start": 11.28,
+   "end": 11.52
+  },
+  {
+   "text": "real",
+   "start": 11.68,
+   "end": 11.92
+  },
+  {
+   "text": "archery.",
+   "start": 12,
+   "end": 12.56
+  },
+  {
+   "text": "Find",
+   "start": 13.04,
+   "end": 13.2
+  },
+  {
+   "text": "a",
+   "start": 13.28,
+   "end": 13.32
+  },
+  {
+   "text": "place",
+   "start": 13.36,
+   "end": 13.52
+  },
+  {
+   "text": "to",
+   "start": 13.6,
+   "end": 13.68
+  },
+  {
+   "text": "shoot",
+   "start": 13.76,
+   "end": 14
+  },
+  {
+   "text": "in",
+   "start": 14.04,
+   "end": 14.08
+  },
+  {
+   "text": "our",
+   "start": 14.16,
+   "end": 14.24
+  },
+  {
+   "text": "national",
+   "start": 14.32,
+   "end": 14.64
+  },
+  {
+   "text": "directory.",
+   "start": 14.72,
+   "end": 15.48
+  },
+  {
+   "text": "Find",
+   "start": 15.68,
+   "end": 15.84
+  },
+  {
+   "text": "your",
+   "start": 15.92,
+   "end": 16
+  },
+  {
+   "text": "next",
+   "start": 16.08,
+   "end": 16.16
+  },
+  {
+   "text": "event",
+   "start": 16.24,
+   "end": 16.56
+  },
+  {
+   "text": "on",
+   "start": 16.64,
+   "end": 16.72
+  },
+  {
+   "text": "the",
+   "start": 16.747,
+   "end": 16.773
+  },
+  {
+   "text": "calendar.",
+   "start": 16.8,
+   "end": 17.36
+  },
+  {
+   "text": "Learn",
+   "start": 17.76,
+   "end": 18
+  },
+  {
+   "text": "from",
+   "start": 18.08,
+   "end": 18.16
+  },
+  {
+   "text": "our",
+   "start": 18.24,
+   "end": 18.32
+  },
+  {
+   "text": "video",
+   "start": 18.4,
+   "end": 18.64
+  },
+  {
+   "text": "library.",
+   "start": 18.72,
+   "end": 19.44
+  },
+  {
+   "text": "And",
+   "start": 19.6,
+   "end": 19.76
+  },
+  {
+   "text": "join",
+   "start": 19.84,
+   "end": 20
+  },
+  {
+   "text": "a",
+   "start": 20.08,
+   "end": 20.12
+  },
+  {
+   "text": "community",
+   "start": 20.16,
+   "end": 20.64
+  },
+  {
+   "text": "that's",
+   "start": 20.72,
+   "end": 20.88
+  },
+  {
+   "text": "free",
+   "start": 20.96,
+   "end": 21.12
+  },
+  {
+   "text": "to",
+   "start": 21.2,
+   "end": 21.28
+  },
+  {
+   "text": "join,",
+   "start": 21.36,
+   "end": 21.84
+  },
+  {
+   "text": "and",
+   "start": 21.92,
+   "end": 22
+  },
+  {
+   "text": "stays",
+   "start": 22.16,
+   "end": 22.48
+  },
+  {
+   "text": "free.",
+   "start": 22.56,
+   "end": 23.12
+  },
+  {
+   "text": "First",
+   "start": 23.36,
+   "end": 23.6
+  },
+  {
+   "text": "arrow",
+   "start": 23.68,
+   "end": 24
+  },
+  {
+   "text": "or",
+   "start": 24.08,
+   "end": 24.24
+  },
+  {
+   "text": "ten-thousandth,",
+   "start": 24.32,
+   "end": 25.36
+  },
+  {
+   "text": "there's",
+   "start": 25.44,
+   "end": 25.6
+  },
+  {
+   "text": "a",
+   "start": 25.64,
+   "end": 25.68
+  },
+  {
+   "text": "seat",
+   "start": 25.76,
+   "end": 26
+  },
+  {
+   "text": "for",
+   "start": 26.08,
+   "end": 26.16
+  },
+  {
+   "text": "you.",
+   "start": 26.24,
+   "end": 26.88
+  },
+  {
+   "text": "Thwack",
+   "start": 26.96,
+   "end": 27.28
+  },
+  {
+   "text": "life",
+   "start": 27.44,
+   "end": 27.6
+  },
+  {
+   "text": "dot",
+   "start": 27.68,
+   "end": 27.76
+  },
+  {
+   "text": "com.",
+   "start": 27.92,
+   "end": 28.56
+  }
+ ]
+}
