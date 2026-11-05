@@ -54,7 +54,11 @@ def write_script(article):
                        "messages": [{"role": "user", "content": f"Source article: {article['title']}\n\n{article['text'][:12000]}"}]}).encode()
     raw = http("https://api.anthropic.com/v1/messages", body, {"x-api-key": os.environ["ANTHROPIC_API_KEY"],
                "anthropic-version": "2023-06-01", "content-type": "application/json"})
-    text = json.loads(raw)["content"][0]["text"]
+    reply = json.loads(raw)
+    blocks = [b["text"] for b in reply.get("content", []) if b.get("type") == "text"]
+    if not blocks:
+        raise ValueError(f"Claude sent no text (stop_reason={reply.get('stop_reason')}, blocks={[b.get('type') for b in reply.get('content', [])]})")
+    text = "".join(blocks)
     return json.loads(text[text.index("{"): text.rindex("}") + 1])
 
 
@@ -94,7 +98,10 @@ def transcribe(mp3):
     body = parts + mp3.read_bytes() + f"\r\n--{bound}--\r\n".encode()
     raw = http("https://api.elevenlabs.io/v1/speech-to-text", body, {"xi-api-key": os.environ["ELEVENLABS_API_KEY"],
                "content-type": f"multipart/form-data; boundary={bound}"})
-    return json.loads(raw)["text"]
+    d = json.loads(raw)
+    if "text" not in d:
+        raise ValueError(f"speech-to-text sent no text (keys={list(d)})")
+    return d["text"]
 
 
 def similarity(a, b):
@@ -184,7 +191,7 @@ def main():
             print("made", spec["id"])
         except Exception as e:  # one bad video must not stop the batch; the run still ends red
             failed += 1
-            print("FAILED", art["title"], e, file=sys.stderr)
+            print("FAILED", art["title"], repr(e), file=sys.stderr)
     STATE.write_text(json.dumps(done, indent=1))
     sys.exit(1 if failed else 0)
 
