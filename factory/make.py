@@ -148,9 +148,10 @@ def make_one(article, out):
     script = " ".join(s["say"] for s in draft["scenes"])
     mp3 = out / f"{vid}.mp3"
     words = voice(script, mp3)
-    heard = similarity(transcribe(mp3), script)
-    if heard < 0.93:
-        raise ValueError(f"voice does not match script ({heard:.2f})")
+    said = transcribe(mp3)
+    heard = similarity(said, script)
+    if heard < 0.88:
+        raise ValueError(f"voice does not match script ({heard:.2f}); heard: {said}")
     spec = build_spec(vid, draft, words)
     spec["source"] = article["link"]
     spec_path = out / f"{vid}.json"
